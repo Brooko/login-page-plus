@@ -1,0 +1,135 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<dom-module id="message-container">
+  <template>
+      <style>
+        :host {
+          font-size:var(--message-container-text-size,12px);
+        }
+
+        .error{
+          color:var(--message-container-error-text-color,darkred); 
+
+        }
+
+        .ok{
+          color:var(--message-container-ok-text-color, rgba(0, 110, 12, 0.5));
+
+        }
+
+
+        .message {
+            padding:6px 0px 2px 0px;
+            line-height:var(--message-container-text-size);
+            height:12px;
+        }
+        .ok {
+
+
+        }
+        .ok[hideOk]{
+          color:blue;
+        }
+
+        .warning{
+          color: var(--message-container-warning-text-color, rgb(238, 163, 0));
+        }
+      </style>
+
+      <div class$="[[generateClass(errorFlag,warningFlag,message)]]">
+          [[generateMessage(errorFlag,warningFlag,message)]]
+      </div>
+      
+  </template>
+  
+  <script>
+        Polymer({
+
+            is: 'message-container',
+            
+            // FUNTCION generateClass: Generate the correct class
+            generateClass:function (errorFlag,warningFlag) {
+                
+                // 1. CHOOSE THE CORRECT CLASS
+                if (errorFlag) {
+                  return "message error";
+                }
+                else if (warningFlag) {
+                  return "message warning";
+                }
+                else {
+                  if (!this.hideOk) {
+                    return "message ok";
+                    }
+                };
+                return "message";
+            },    
+
+            // FUNTCION generateMessage: Generate the correct message
+            generateMessage:function (errorFlag,warningFlag,message) {
+                if (this.errorFlag||this.warningFlag) {
+                  return this.message;
+                }
+                else {
+                  if (!this.hideOk) {
+                    return this.okMessage;
+                  }
+                  else {
+                    return null;
+                  };
+                };
+            }, 
+
+            generateMessageIcon:function (errorFlag,warningFlag,message) {
+                
+                // 1. CHOOSE THE CORRECT CLASS
+                if (this.errorFlag) {
+                  return "fa fa-exclamation";
+                }
+                else if (this.warningFlag) {
+                  return "fa fa-exclamation";
+                }
+                else {
+                  if (!this.hideOk) {
+                    return "fa fa-check";
+                    }
+                    else {
+                      return null;
+                    };
+                };
+            },       
+            _mC:function(e) {
+            },
+            properties:{
+              message:{
+                type:String,
+                value:"ERR/WARN",
+                observer:"_mC"
+              },
+              
+              // ERROR PROPRETIES
+              errorFlag:{
+                type:Boolean,
+                value:false,
+              },
+
+              // OK PROPRETIES
+              hideOk:{
+                type:Boolean,
+                value:false,
+              },
+              
+              okMessage:{
+                type:String,
+                value:"Content allowed",
+              },    
+    
+              // WARNINGS PROPRETIES
+              warningFlag:{
+                type:Boolean,
+                value:false,
+            },      
+          },
+        }); 
+    </script>
+</dom-module>

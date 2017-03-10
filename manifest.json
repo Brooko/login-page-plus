@@ -1,0 +1,7 @@
+{
+  "name": "login-page-plus",
+  "short_name": "login-page-plus",
+  "description": "A simple login page",
+  "start_url": "/",
+  "display": "standalone"
+}

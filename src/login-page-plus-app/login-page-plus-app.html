@@ -1,0 +1,212 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<!-- IRON LIBRARIES -->
+<link rel="import" href="../../bower_components/iron-input/iron-input.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/iron-ajax/iron-ajax.html">
+<!-- PLUS LIBRARIES -->
+<link rel="import" href="../../bower_components/message-container/message-container.html">
+<link rel="import" href="../../bower_components/button-plus/button-plus.html">
+
+<script src="https://www.gstatic.com/firebasejs/3.7.1/firebase.js"></script>
+
+<dom-module id="login-page-plus-app">
+	<template>
+		<style>
+			:host{
+				display: block;
+
+				--text-size:12px;
+                --message-container-text-size:var(--text-size);
+
+                --button-plus-font-specification:{
+                     font-size:12px;
+                     letter-spacing:1px;
+                     line-height:22px;
+                 };
+                --button-plus-main-color: #CFD8DC;
+                --button-plus-fill-color: #263238;
+			}
+			.form-style{
+				background-color: #263238 ;
+				padding:2px;
+				border:1px #263238 solid;
+				display:flex;
+				flex-direction: column;
+				justify-content: center;
+				width: 400px;
+				font-family: 'Ubuntu', sans-serif;
+			}
+			.header{
+				border:2px #263238 solid !important;
+				padding:18px;
+				font-size:36px;
+				color:white;
+				background-color: #263238;
+			}
+			.internal-rect{
+				padding:20px;
+				background-color: #CFD8DC;
+				color:#263238;
+			}
+			.rowForm {
+			@apply(--layout-horizontal);
+				align-items: center;
+				margin-bottom:4px;
+			}
+			.columnForm {
+			@apply(- -layout-flex);
+				display: flex;
+				flex-grow: 1;
+			}
+
+			.input{
+				border:2px #263238 solid;
+				border-radius: 6px;
+				padding:4px;
+			}
+			input{
+				line-height:22px;
+				user-select: none;
+				position: relative;
+				display:block;
+				float: left;
+				padding: 0;
+				width:100%;
+				border:0;
+				font-family: 'Ubuntu', sans-serif;
+				background-color: #CFD8DC;
+				color: #263238;
+			}
+			input:focus{
+				outline: none;
+			}
+			::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+				color: #607D8B;
+			}
+		</style>
+
+		<div class="form-style">
+			<div class="header">Login</div>
+			<div class="internal-rect">
+				<div class="rowForm">
+					<div class="columnForm input">
+						<div class="inputContainer">
+							<input id="username"
+								   is="iron-input"
+								   prevent-invalid-input allowed-pattern="[a-zA-Z0-9_]"
+								   on-keyup="_resetUserFlag"
+								   placeholder="Username" >
+						</div>
+					</div>
+				</div>
+				<div class="rowForm">
+					<message-container error-flag="[[!_userFlag]]"
+									   message="Username not find"
+									   hide-ok>
+					</message-container>
+				</div>
+				<div class="rowForm">
+					<div class="columnForm input">
+						<div class="inputContainer">
+							<input type="password"
+								   id="password"
+								   is="iron-input"
+								   on-keyup="_resetPasswordFlag"
+								   placeholder="Password" >
+						</div>
+					</div>
+				</div>
+				<div class="rowForm">
+					<message-container error-flag="[[!_passwordFlag]]"
+									   message="Wrong password"
+									   hide-ok>
+					</message-container>
+				</div>
+                <button-plus fill on-tap="_loginButton">Login</button-plus>
+			</div>
+		</div>
+	</template>
+
+	<script>
+		// INIT FIREBASE
+		var config = {
+			apiKey: "AIzaSyDqe1asD7rU0FQhMYDhjw_8KWAWwf6rtEs",
+			authDomain: "sign-up-page-plus.firebaseapp.com",
+			databaseURL: "https://sign-up-page-plus.firebaseio.com",
+			storageBucket: "sign-up-page-plus.appspot.com",
+			messagingSenderId: "700472867575"
+		};
+		firebase.initializeApp(config);
+	</script>
+
+	<script>
+		Polymer({
+			is: 'login-page-plus-app',
+
+			ready: function () {
+				this._readUsers();
+			},
+
+            _resetUserFlag:function(){
+                this._userFlag=true;
+            },
+
+            _resetPasswordFlag:function(){
+                this._passwordFlag=true;
+            },
+
+			_controlUser:function() {
+				this._userFlag=(this._users.indexOf(this.$.username.value) != -1)
+			},
+
+			_controlPassword:function() {
+                // FLAG TRUE => OK
+                //IF USERFLAG IS FALSE, IT NOT MATCH
+				if(this._userFlag) {
+                    this._passwordFlag = (this._passwords.indexOf(this.$.password.value) == this._users.indexOf(this.$.username.value))
+                }
+			},
+
+            _loginButton:function(){
+                this._controlUser();
+                this._controlPassword();
+                if(this._userFlag&&this._passwordFlag){
+                    this.fire('logged');
+                    console.log("LOGGED")
+                }
+            },
+
+			_readUsers:function(){
+				var ObjUsers;
+				firebase.database().ref('users').on("value", function (snapshot) {
+					ObjUsers = (snapshot.val());
+					try{
+						this._users = Object.getOwnPropertyNames(ObjUsers);
+						this._passwords = this._users.map(function(username){
+							return ObjUsers[username].password;
+						}.bind(this))
+					}catch(Exception){}
+				}.bind(this));
+			},
+
+			properties: {
+				_users:{
+					type:Array,
+					value:null
+				},
+				_passwords:{
+					type:Array,
+					value:null
+				},
+				_userFlag:{
+					type:Boolean,
+					value:true
+				},
+				_passwordFlag:{
+					type:Boolean,
+					value:true
+				}
+			}
+		});
+	</script>
+</dom-module>
